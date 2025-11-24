@@ -62,6 +62,7 @@ La máquina objetivo identificada en **10.0.2.20** presenta las siguientes carac
 | 21 | FTP | - |
 | 22 | SSH | OpenSSH |
 | 80 | HTTP | Apache |
+| 445 | netbios-ssn | Samba |
 | 3306 | MySQL | - |
 | 8080 | Jetty | - |
 
