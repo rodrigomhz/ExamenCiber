@@ -274,7 +274,7 @@ set RHOSTS 10.0.2.20
 - Enumeración exitosa de servicios y puertos
 - Identificación precisa de la máquina objetivo (10.0.2.20)
 - Detección de usuario potencial (chewbacca)
-- Uso combinado de múltiples herramientas (Nmap, Nessus, Metasploit)
+- Uso combinado de múltiples herramientas (Nmap, Nessus, Metasploit, Ejecuciones Locales)
 - Metodología estructurada de ataque
 
 ## Problemas Encontrados
@@ -289,18 +289,18 @@ set RHOSTS 10.0.2.20
 
 - A lo largo de la practica la máquina se bloqueó en dos ocasiones
 
-3. Problemas con Metasploit
+### 3. Problemas con Metasploit
    
 - Exploits completados sin sesión (especialmente Drupal)
 - Detección automática fallida de versiones (SPIP)
 - Filtros de salida bloqueando conexiones reversas
 
-4. Limitaciones de Herramientas
+### 4. Limitaciones de Herramientas
    
-- Nmap con scripts vuln: Extremadamente lento y poco efectivo
+- Nmap con scripts vuln: Extremadamente lento y poco efectivo debido a los bloqueos y errores.
 
 
-**Creador:** [RodrigoMartínezHernández]  
+**Creador:** [Rodrigo Martínez Hernández]  
 
 
 
